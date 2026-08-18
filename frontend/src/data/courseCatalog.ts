@@ -42,12 +42,12 @@ export const COURSE_CATALOG: CourseCatalogItem[] = [
   { id: 'habilidad-verbal', title: 'Habilidad Verbal', category: 'Letras', icon: BookOpenText, tone: 'violet', status: 'preparing' },
   { id: 'lenguaje', title: 'Lenguaje', category: 'Letras', icon: Languages, tone: 'coral', status: 'roadmap' },
   { id: 'literatura', title: 'Literatura', category: 'Letras', icon: BookOpenText, tone: 'amber', status: 'roadmap' },
-  { id: 'historia', title: 'Historia', category: 'Sociales', icon: Landmark, tone: 'amber', status: 'preparing' },
-  { id: 'geografia', title: 'Geografía', category: 'Sociales', icon: Globe2, tone: 'blue', status: 'preparing' },
+  { id: 'historia', title: 'Historia', category: 'Sociales', icon: Landmark, tone: 'amber', status: 'roadmap' },
+  { id: 'geografia', title: 'Geografía', category: 'Sociales', icon: Globe2, tone: 'blue', status: 'roadmap' },
   { id: 'economia', title: 'Economía', category: 'Sociales', icon: BarChart3, tone: 'green', status: 'roadmap' },
   { id: 'filosofia', title: 'Filosofía', category: 'Humanidades', icon: Lightbulb, tone: 'violet', status: 'roadmap' },
-  { id: 'psicologia', title: 'Psicología', category: 'Humanidades', icon: Brain, tone: 'coral', status: 'preparing' },
-  { id: 'educacion-civica', title: 'Educación Cívica', category: 'Sociales', icon: Scale, tone: 'blue', status: 'preparing' },
+  { id: 'psicologia', title: 'Psicología', category: 'Humanidades', icon: Brain, tone: 'coral', status: 'roadmap' },
+  { id: 'educacion-civica', title: 'Educación Cívica', category: 'Sociales', icon: Scale, tone: 'blue', status: 'roadmap' },
 ]
 
 export function getCourse(courseId?: string) {
