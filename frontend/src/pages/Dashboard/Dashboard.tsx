@@ -26,7 +26,11 @@ function GeometryTree() {
   const activeResourceSection = GEOMETRIA_STAGE.sections.find((section) => section.id === resourceDialog?.sectionId) || null
 
   useEffect(() => { const refresh = () => setCompletedNodes(readCompletedNodes()); window.addEventListener('focus', refresh); window.addEventListener('storage', refresh); return () => { window.removeEventListener('focus', refresh); window.removeEventListener('storage', refresh) } }, [])
-  useEffect(() => { if (validSection(selectedSectionId)) localStorage.setItem(SECTION_STORAGE_KEY, selectedSectionId) }, [selectedSectionId])
+  useEffect(() => {
+    if (validSection(selectedSectionId)) {
+      localStorage.setItem(SECTION_STORAGE_KEY, selectedSectionId)
+    }
+  }, [selectedSectionId])
   const selectSection = (sectionId: string) => { if (!validSection(sectionId)) return; setSelectedSectionId(sectionId); localStorage.setItem(SECTION_STORAGE_KEY, sectionId); navigate(`/courses/geometria?section=${encodeURIComponent(sectionId)}`, { replace: true }) }
 
   return <><main className="min-w-0"><TreeHeader title="Geometría" eyebrow="Etapa 1 · Fundamentos de geometría" description={GEOMETRIA_STAGE.subtitle} /><GeometryToolbar stage={GEOMETRIA_STAGE} sections={GEOMETRIA_STAGE.sections} selectedSectionId={selectedSectionId} onSectionSelect={selectSection} onOpenPerformance={() => navigate('/courses/geometria/performance')} /><div className="mx-auto max-w-[1120px]"><SkillTree units={GEOMETRIA_STAGE.sections} completedNodes={completedNodes} currentNodeId={currentNodeId} focusedUnitId={selectedSectionId} onLessonClick={(nodeId, lessonId) => navigate(`/learn/${nodeId}/${lessonId}`)} onOpenSectionResource={(sectionId, view) => setResourceDialog({ sectionId, view })} /></div></main><CourseResourcesDialog section={activeResourceSection} resources={GEOMETRIA_RESOURCES} view={resourceDialog?.view || null} onClose={() => setResourceDialog(null)} onOpenSyllabus={() => { setResourceDialog(null); navigate('/courses/geometria/syllabus') }} /></>

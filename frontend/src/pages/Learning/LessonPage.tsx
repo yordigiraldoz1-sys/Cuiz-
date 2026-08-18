@@ -37,7 +37,9 @@ function AnswerButton({ choice, selected, answered, correct, onClick, showLetter
 
 function EconomyPractice({ question, answer, setAnswer, answered, correct, onSubmit, onNext, isLast, shuffled }: { question: ExerciseQuestion; answer: Answer; setAnswer: (value: Answer) => void; answered: boolean; correct: boolean; onSubmit: () => void; onNext: () => void; isLast: boolean; shuffled: boolean }) {
   const [activeLeft, setActiveLeft] = useState<string | null>(null)
-  useEffect(() => setActiveLeft(null), [question.id])
+  useEffect(() => {
+    setActiveLeft(null)
+  }, [question.id])
   const displayedChoices = useMemo(() => shuffled ? shuffle(question.choices || []) : question.choices || [], [question.id, question.choices, shuffled])
   const rightChoices = useMemo(() => shuffled ? shuffle(question.matching?.pairs.map((pair) => pair.right) || []) : question.matching?.pairs.map((pair) => pair.right) || [], [question.id, question.matching, shuffled])
   const orderingItems = useMemo(() => shuffled ? shuffle(question.ordering?.items || []) : question.ordering?.items || [], [question.id, question.ordering, shuffled])
@@ -63,7 +65,16 @@ export default function LessonPage() {
   const repeated = useMemo(() => { try { return JSON.parse(localStorage.getItem('cuiz-learning-attempts') || '[]').some((attempt: { lessonId: string }) => attempt.lessonId === lessonId) } catch { return false } }, [lessonId])
   const steps = useMemo(() => lesson ? (repeated && courseId === 'economia' ? shuffle(lesson.exercises) : lesson.exercises) : [], [lesson, repeated, courseId])
   const [index, setIndex] = useState(0); const [answer, setAnswer] = useState<Answer>(null); const [answered, setAnswered] = useState(false); const [correct, setCorrect] = useState(false); const [xp, setXp] = useState(0); const [correctCount, setCorrectCount] = useState(0); const [done, setDone] = useState(false)
-  useEffect(() => { setIndex(0); setAnswer(null); setAnswered(false); setDone(false) }, [lessonId]); useEffect(() => window.scrollTo(0, 0), [index, done])
+  useEffect(() => {
+    setIndex(0)
+    setAnswer(null)
+    setAnswered(false)
+    setDone(false)
+  }, [lessonId])
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [index, done])
   if (!node || !lesson || !steps.length) return <div className="flex min-h-full items-center justify-center bg-cream-100 text-bark-500">Lección no encontrada</div>
   const question = steps[index]; const progress = done ? 100 : Math.max(8, ((index + 1) / steps.length) * 100)
   const submit = () => { if (!isCorrectAnswer(question, answer) && answer === null) return; const result = isCorrectAnswer(question, answer); setCorrect(result); setAnswered(true); recordLearningAttempt({ courseId, nodeId: nodeId || '', lessonId: lessonId || '', questionId: question.id, correct: result }); if (result) { setXp((value) => value + 10); setCorrectCount((value) => value + 1) } }
