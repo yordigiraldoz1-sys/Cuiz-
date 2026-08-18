@@ -38,7 +38,7 @@ export const COURSE_CATALOG: CourseCatalogItem[] = [
   { id: 'trigonometria', title: 'Trigonometría', category: 'Matemáticas', icon: Compass, tone: 'green', status: 'preparing' },
   { id: 'fisica', title: 'Física', category: 'Ciencias', icon: Atom, tone: 'blue', status: 'preparing' },
   { id: 'quimica', title: 'Química', category: 'Ciencias', icon: FlaskConical, tone: 'green', status: 'preparing' },
-  { id: 'biologia', title: 'Biología', category: 'Ciencias', icon: Dna, tone: 'green', status: 'preparing' },
+  { id: 'biologia', title: 'Biología', category: 'Ciencias', icon: Dna, tone: 'green', status: 'roadmap' },
   { id: 'habilidad-verbal', title: 'Habilidad Verbal', category: 'Letras', icon: BookOpenText, tone: 'violet', status: 'preparing' },
   { id: 'lenguaje', title: 'Lenguaje', category: 'Letras', icon: Languages, tone: 'coral', status: 'preparing' },
   { id: 'literatura', title: 'Literatura', category: 'Letras', icon: BookOpenText, tone: 'amber', status: 'preparing' },

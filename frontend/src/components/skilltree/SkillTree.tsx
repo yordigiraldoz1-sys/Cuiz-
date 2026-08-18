@@ -15,6 +15,7 @@ interface SkillTreeProps {
   showSectionResources?: boolean
   sectionResourcesEnabled?: boolean
   interactiveNodeIds?: string[]
+  unlockAll?: boolean
 }
 
 type NodeState = 'locked' | 'available' | 'current' | 'completed'
@@ -29,13 +30,14 @@ function readCompletedLessons(nodeId: string, validLessons: string[]) {
   }
 }
 
-export default function SkillTree({ units, completedNodes, currentNodeId, onLessonClick, focusedUnitId, onOpenSectionResource, unitLabel = 'Sección', interactive = true, showSectionResources = Boolean(onOpenSectionResource), sectionResourcesEnabled = true, interactiveNodeIds }: SkillTreeProps) {
+export default function SkillTree({ units, completedNodes, currentNodeId, onLessonClick, focusedUnitId, onOpenSectionResource, unitLabel = 'Sección', interactive = true, showSectionResources = Boolean(onOpenSectionResource), sectionResourcesEnabled = true, interactiveNodeIds, unlockAll = true }: SkillTreeProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const allNodes = useMemo(() => units.flatMap((unit) => unit.nodes), [units])
 
   const getNodeState = (nodeId: string, index: number): NodeState => {
     if (completedNodes.includes(nodeId)) return 'completed'
     if (nodeId === currentNodeId) return 'current'
+    if (unlockAll) return 'available'
     if (index === 0 || completedNodes.includes(allNodes[index - 1]?.id)) return 'available'
     return 'locked'
   }
