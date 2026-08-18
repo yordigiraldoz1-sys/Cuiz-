@@ -14,15 +14,7 @@ export default function YordiGuide({ message, size = 'md', className = '' }: Yor
   const s = sizes[size]
 
   return (
-    <div className={`flex items-end gap-2.5 ${className}`}>
-      <div
-        className={`relative shrink-0 rounded-[42%] bg-gradient-to-br from-[#FFD9A8] to-[#F5A66B] shadow-[0_4px_0_#D97852] flex items-center justify-center ${s.container}`}
-        aria-label="Yordi, la mascota de Cuiz"
-        role="img"
-      >
-        <span className="absolute -top-2 text-sm -rotate-12">🎓</span>
-        <span aria-hidden="true">🐹</span>
-      </div>
+    <div className={`flex items-end ${className}`}>
       {message && (
         <div className={`relative rounded-2xl rounded-bl-sm border border-[#FFD8D1] bg-white font-bold leading-snug text-bark-600 shadow-card ${s.bubble}`}>
           {message}

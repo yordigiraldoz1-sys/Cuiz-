@@ -14,7 +14,7 @@ const LIBRARY_BLOCKS: Array<{ title: string; description: string; courses: Cours
   { title: 'Razonamiento', description: 'Herramientas para pensar, comprender y resolver.', courses: COURSE_CATALOG.filter((course) => course.id === 'habilidad-matematica' || course.id === 'habilidad-verbal') },
   { title: 'Matemáticas', description: 'Rutas numéricas, algebraicas y espaciales.', courses: COURSE_CATALOG.filter((course) => course.category === 'Matemáticas') },
   { title: 'Ciencias', description: 'Explica la vida, la materia y los fenómenos físicos.', courses: COURSE_CATALOG.filter((course) => course.category === 'Ciencias') },
-  { title: 'Letras y Sociales', description: 'Lenguaje, cultura, sociedad, territorio y ciudadanía.', courses: COURSE_CATALOG.filter((course) => ['Letras', 'Sociales', 'Humanidades'].includes(course.category)) },
+  { title: 'Letras y Sociales', description: 'Lenguaje, cultura, sociedad, territorio y ciudadanía.', courses: COURSE_CATALOG.filter((course) => ['Letras', 'Sociales', 'Humanidades'].includes(course.category) && course.id !== 'habilidad-verbal') },
 ]
 
 export default function CourseLibrary() {
@@ -25,10 +25,7 @@ export default function CourseLibrary() {
       <div className="pointer-events-none absolute right-0 top-10 h-72 w-72 rounded-full bg-xp/10 blur-3xl" />
 
       <div className="relative mx-auto max-w-[1240px] px-4 py-5 sm:px-6 lg:px-9 lg:py-8">
-        <div className="mb-7 flex items-center gap-3 lg:hidden">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary-100 text-xl">🐹</div>
-          <span className="font-display text-xl font-extrabold text-bark-800">cuiz</span>
-        </div>
+        <div className="mb-7 lg:hidden"><span className="font-display text-xl font-extrabold text-bark-800">cuiz</span></div>
 
         <header className="mb-7 sm:flex sm:items-end sm:justify-between sm:gap-6">
           <div>

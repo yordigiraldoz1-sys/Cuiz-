@@ -39,7 +39,7 @@ export default function Login() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-[#FFD9A8] to-[#F5A66B] rounded-[42%] mb-4 shadow-[0_8px_0_#D97852]">
-            <span className="text-5xl">🐹</span>
+            <span className="font-display text-4xl font-extrabold text-primary-500">cuiz</span>
           </div>
           <h1 className="text-3xl font-display font-extrabold text-bark-800">cuiz</h1>
           <p className="text-bark-400 mt-1 text-sm font-semibold">Prepárate para San Marcos</p>
@@ -126,7 +126,7 @@ export default function Login() {
         </div>
 
         <p className="mt-6 text-center text-[10px] font-bold text-bark-300">
-          🎓 Preparación para el examen de ingreso UNMSM
+          Preparación para el examen de ingreso UNMSM
         </p>
       </div>
     </div>

@@ -24,12 +24,9 @@ export default function Sidebar() {
   return (
     <div className="flex flex-col h-full">
       <div className="border-b border-bark-100/70 px-5 py-6">
-        <Link to="/" className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-100 text-2xl shadow-sm">🐹</div>
-          <div>
-            <span className="block font-display text-xl font-extrabold leading-none text-bark-800">cuiz</span>
-            <span className="text-[10px] font-bold tracking-[0.08em] text-primary-400">ESTUDIA CONTIGO</span>
-          </div>
+        <Link to="/" className="block">
+          <span className="block font-display text-xl font-extrabold leading-none text-bark-800">cuiz</span>
+          <span className="text-[10px] font-bold tracking-[0.08em] text-primary-400">ESTUDIA CONTIGO</span>
         </Link>
       </div>
 
@@ -53,16 +50,6 @@ export default function Sidebar() {
           </div>
         ))}
       </nav>
-
-      <div className="border-t border-bark-100/70 px-5 py-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-sm font-extrabold text-primary-500">D</div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-bold text-bark-700">Demo</p>
-            <p className="truncate text-[11px] text-bark-400">Nivel 5</p>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }
