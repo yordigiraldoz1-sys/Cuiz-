@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { Component, type ReactNode, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, CheckCircle, Star, X, Zap } from 'lucide-react'
 import { ECONOMIA_STAGE } from '../../data/economiaCourse'
@@ -13,6 +13,15 @@ const isCorrectAnswer = (question: ExerciseQuestion, answer: Answer) => {
   if (question.type === 'matching') return question.matching?.pairs.every((pair) => (answer as Record<string, string> | null)?.[pair.left.id] === pair.right.id) ?? false
   if (question.type === 'ordering') return Array.isArray(answer) && sameOrder(answer, question.ordering?.correctOrder || [])
   return typeof answer === 'string' && String(question.correctAnswer) === answer
+}
+
+class PracticeErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state: { error: Error | null } = { error: null }
+  static getDerivedStateFromError(error: Error) { return { error } }
+  render() {
+    if (!this.state.error) return this.props.children
+    return <main className="mx-auto max-w-xl px-5 py-16 text-center"><div className="rounded-3xl border border-incorrect/30 bg-white p-8 shadow-card"><h1 className="text-2xl font-extrabold text-bark-800">No pudimos cargar esta pregunta</h1><p className="mt-3 text-sm font-semibold text-bark-500">Vuelve a la ruta y abre la lección otra vez. La práctica no se marcará como terminada.</p><p className="mt-5 rounded-xl bg-cream-50 p-3 text-left font-mono text-xs text-bark-500">{this.state.error.message}</p><button type="button" onClick={() => window.location.reload()} className="mt-6 rounded-xl bg-[#4B9B69] px-5 py-3 text-sm font-extrabold text-white">RECARGAR PRÁCTICA</button></div></main>
+  }
 }
 
 function FppDiagram({ variant, alt }: { variant: 'basic' | 'growth' | 'contraction' | 'opportunity-cost'; alt: string }) {
@@ -61,7 +70,7 @@ export default function LessonPage() {
   const next = () => { if (index < steps.length - 1) { setIndex(index + 1); setAnswer(null); setAnswered(false); setCorrect(false); return } const completed = JSON.parse(localStorage.getItem(`completed-lessons-${nodeId}`) || '[]'); if (!completed.includes(lessonId)) localStorage.setItem(`completed-lessons-${nodeId}`, JSON.stringify([...completed, lessonId])); setDone(true) }
   const legacyChoices = (question.options || []).map((text, index) => ({ id: String(index), text }))
   return <div className="min-h-full bg-cream-100 pb-20 lg:pb-8"><header className="sticky top-0 z-20 border-b border-bark-100/80 bg-cream-50/95 px-4 py-3 backdrop-blur lg:px-8"><div className="mx-auto flex max-w-7xl items-center gap-3"><button type="button" onClick={() => navigate(returnToCourse)} className="rounded-xl p-2 text-bark-500" aria-label="Volver"><ArrowLeft size={21} /></button><div className="flex-1"><div className="h-2.5 overflow-hidden rounded-full bg-bark-100"><div className={`h-full rounded-full ${courseId === 'economia' ? 'bg-[#4B9B69]' : 'bg-primary-400'}`} style={{ width: `${progress}%` }} /></div><p className="mt-1 text-[10px] font-bold text-bark-400">{done ? 'Lección completada' : `Pregunta ${index + 1} de ${steps.length}`}</p></div><div className="flex items-center gap-1 rounded-xl bg-xp/10 px-2 py-1 text-sm font-extrabold text-bark-700"><Zap size={16} className="text-xp" />{xp}</div></div></header>
-    {!done && courseId === 'economia' && <EconomyPractice question={question} answer={answer} setAnswer={setAnswer} answered={answered} correct={correct} onSubmit={submit} onNext={next} isLast={index === steps.length - 1} shuffled={repeated} />}
+    {!done && courseId === 'economia' && <PracticeErrorBoundary><EconomyPractice question={question} answer={answer} setAnswer={setAnswer} answered={answered} correct={correct} onSubmit={submit} onNext={next} isLast={index === steps.length - 1} shuffled={repeated} /></PracticeErrorBoundary>}
     {!done && courseId === 'geometria' && <main className="mx-auto max-w-4xl px-5 py-10"><div className="rounded-3xl bg-white p-7 shadow-card"><p className="text-xs font-extrabold text-primary-500">GEOMETRÍA · PRÁCTICA</p><h1 className="mt-4 text-3xl font-extrabold text-bark-800">{question.question}</h1><div className="mt-7 space-y-3">{legacyChoices.map((choice) => <AnswerButton key={choice.id} choice={choice} selected={answer === choice.id} answered={answered} correct={choice.id === String(question.correctAnswer)} onClick={() => setAnswer(choice.id)} />)}</div>{answered && <p className="mt-5 rounded-2xl bg-primary-50 p-4 font-semibold text-bark-700">{question.explanation}</p>}<button type="button" onClick={answered ? next : submit} disabled={!answered && answer === null} className="mt-6 w-full rounded-2xl bg-primary-400 py-4 font-extrabold text-white disabled:bg-bark-100">{answered ? (index === steps.length - 1 ? 'VER RESULTADO' : 'CONTINUAR') : 'COMPROBAR'}</button></div></main>}
     {done && <main className="mx-auto max-w-2xl px-5 py-12 text-center">{courseId === 'geometria' && <YordiGuide size="lg" message="¡Terminaste tu misión geométrica!" className="justify-center" />}<div className="mx-auto mt-6 flex h-20 w-20 items-center justify-center rounded-full bg-xp/15"><Star size={42} className="text-xp" fill="currentColor" /></div><h1 className="mt-5 text-3xl font-extrabold text-bark-800">¡Excelente trabajo!</h1><p className="mt-2 text-bark-500">Terminaste la práctica de {lesson.title.toLowerCase()}.</p><div className="mt-7 grid grid-cols-2 gap-3"><div className="rounded-2xl bg-white p-4 shadow-card"><p className="text-2xl font-extrabold text-correct">{correctCount}/{steps.length}</p><p className="text-xs font-semibold text-bark-400">Correctas</p></div><div className="rounded-2xl bg-white p-4 shadow-card"><p className="text-2xl font-extrabold text-xp">+{xp}</p><p className="text-xs font-semibold text-bark-400">XP ganados</p></div></div><button type="button" onClick={() => navigate(returnToCourse)} className="mt-7 w-full rounded-2xl bg-primary-400 py-3.5 text-sm font-extrabold text-white">VOLVER A MI RUTA</button></main>}</div>
 }
