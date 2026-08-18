@@ -7,6 +7,7 @@ import { getCourse, type CourseCatalogItem } from '../../data/courseCatalog'
 import { GEOMETRIA_RESOURCES, GEOMETRIA_STAGE } from '../../data/geometriaCourse'
 import { ECONOMIA_STAGE } from '../../data/economiaCourse'
 import { BIOLOGIA_STAGE } from '../../data/biologiaCourse'
+import { HUMANITIES_STAGES, type HumanitiesStage } from '../../data/humanidadesCourses'
 
 const SECTION_STORAGE_KEY = 'last-section-geometria'
 const validSection = (id: string | null | undefined) => GEOMETRIA_STAGE.sections.some((section) => section.id === id)
@@ -98,4 +99,17 @@ function BiologyRoadmap() {
   return <main className="min-w-0"><TreeHeader title="Biología" eyebrow="Etapa 1 · Biología anual" description={BIOLOGIA_STAGE.subtitle} /><GeometryToolbar stage={BIOLOGIA_STAGE} sections={BIOLOGIA_STAGE.sections} selectedSectionId={selectedUnitId} onSectionSelect={selectUnit} courseName="Biología" sectionLabel="Unidad" /><div className="mx-auto max-w-[1120px]"><SkillTree units={BIOLOGIA_STAGE.sections} completedNodes={completedNodes} currentNodeId={currentNodeId} focusedUnitId={selectedUnitId} onLessonClick={(nodeId, lessonId) => navigate(`/learn/${nodeId}/${lessonId}`)} unitLabel="Unidad" showSectionResources sectionResourcesEnabled={false} /></div></main>
 }
 
-export default function Dashboard() { const { courseId } = useParams(); const course = getCourse(courseId); if (!course) return <Navigate to="/courses" replace />; return <div className="relative min-h-full overflow-hidden bg-cream-100 pb-8"><div className="relative mx-auto max-w-[1360px] px-4 py-5 sm:px-6 lg:px-8 lg:py-7">{course.id === 'geometria' ? <GeometryTree /> : course.id === 'economia' ? <EconomyRoadmap /> : course.id === 'biologia' ? <BiologyRoadmap /> : <PreparingCourseTree course={course} />}</div></div> }
+function HumanitiesRoadmap({ courseId, courseName, stage }: { courseId: 'lenguaje' | 'literatura' | 'filosofia'; courseName: string; stage: HumanitiesStage }) {
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const readCompleted = () => stage.sections.flatMap((section) => section.nodes).filter((node) => { try { const saved = JSON.parse(localStorage.getItem(`completed-lessons-${node.id}`) || '[]'); return Array.isArray(saved) && node.lessons.every((lesson) => saved.includes(lesson.id)) } catch { return false } }).map((node) => node.id)
+  const [completedNodes, setCompletedNodes] = useState<string[]>(readCompleted)
+  const validUnit = (id: string | null) => stage.sections.some((unit) => unit.id === id)
+  const [selectedUnitId, setSelectedUnitId] = useState(() => validUnit(searchParams.get('section')) ? searchParams.get('section') as string : stage.sections[0].id)
+  const selectUnit = (unitId: string) => { if (!validUnit(unitId)) return; setSelectedUnitId(unitId); localStorage.setItem(`last-section-${courseId}`, unitId); navigate(`/courses/${courseId}?section=${encodeURIComponent(unitId)}`, { replace: true }) }
+  useEffect(() => { const refresh = () => setCompletedNodes(readCompleted()); window.addEventListener('focus', refresh); window.addEventListener('storage', refresh); return () => { window.removeEventListener('focus', refresh); window.removeEventListener('storage', refresh) } }, [])
+  const currentNodeId = stage.sections.flatMap((section) => section.nodes).find((node) => !completedNodes.includes(node.id))?.id || null
+  return <main className="min-w-0"><TreeHeader title={courseName} eyebrow={`Etapa 1 · ${courseName} anual`} description={stage.subtitle} /><GeometryToolbar stage={stage} sections={stage.sections} selectedSectionId={selectedUnitId} onSectionSelect={selectUnit} courseName={courseName} sectionLabel="Unidad" /><div className="mx-auto max-w-[1120px]"><SkillTree units={stage.sections} completedNodes={completedNodes} currentNodeId={currentNodeId} focusedUnitId={selectedUnitId} onLessonClick={(nodeId, lessonId) => navigate(`/learn/${nodeId}/${lessonId}`)} unitLabel="Unidad" showSectionResources sectionResourcesEnabled={false} /></div></main>
+}
+
+export default function Dashboard() { const { courseId } = useParams(); const course = getCourse(courseId); const humanitiesStage = course ? HUMANITIES_STAGES[course.id] : null; if (!course) return <Navigate to="/courses" replace />; return <div className="relative min-h-full overflow-hidden bg-cream-100 pb-8"><div className="relative mx-auto max-w-[1360px] px-4 py-5 sm:px-6 lg:px-8 lg:py-7">{course.id === 'geometria' ? <GeometryTree /> : course.id === 'economia' ? <EconomyRoadmap /> : course.id === 'biologia' ? <BiologyRoadmap /> : humanitiesStage ? <HumanitiesRoadmap courseId={course.id as 'lenguaje' | 'literatura' | 'filosofia'} courseName={course.title} stage={humanitiesStage} /> : <PreparingCourseTree course={course} />}</div></div> }
