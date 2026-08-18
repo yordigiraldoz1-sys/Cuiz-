@@ -1,14 +1,37 @@
-﻿export interface ExerciseQuestion {
+export type ExerciseQuestionType = 'multiple-choice' | 'true-false' | 'fill-blank' | 'numeric' | 'multiple-select' | 'matching' | 'ordering' | 'word-bank'
+
+export interface AnswerChoice {
   id: string
-  type: 'multiple-choice' | 'true-false' | 'fill-blank' | 'numeric' | 'multiple-select' | 'matching' | 'ordering'
+  text: string
+}
+
+export interface FppDiagram {
+  type: 'fpp'
+  variant: 'basic' | 'growth' | 'contraction' | 'opportunity-cost'
+}
+
+export interface ExerciseQuestion {
+  id: string
+  type: ExerciseQuestionType
   question: string
   options?: string[]
-  correctAnswer: number | string
+  choices?: AnswerChoice[]
+  correctAnswer: number | string | string[]
   explanation: string
   difficulty: 'basico' | 'intermedio' | 'avanzado'
   resolutionSteps?: string[]
   ideaKey?: string
-  visual?: { src?: string; alt: string; placement?: 'above-question' | 'inside-explanation' }
+  visual?: {
+    kind?: 'image' | 'diagram' | 'audio'
+    src?: string
+    alt: string
+    placement?: 'above-question' | 'inside-explanation'
+    transcript?: string
+    diagram?: FppDiagram
+  }
+  wordBank?: { template: string; blankId: string; tokens: AnswerChoice[]; correctTokenId: string }
+  matching?: { pairs: { left: AnswerChoice; right: AnswerChoice }[] }
+  ordering?: { items: AnswerChoice[]; correctOrder: string[] }
   resource?: { title: string; description: string; status: 'available' | 'coming-soon' }
 }
 
