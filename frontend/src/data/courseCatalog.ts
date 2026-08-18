@@ -31,7 +31,7 @@ export interface CourseCatalogItem {
 }
 
 export const COURSE_CATALOG: CourseCatalogItem[] = [
-  { id: 'geometria', title: 'Geometría', category: 'Matemáticas', icon: Shapes, tone: 'coral', status: 'available' },
+  { id: 'geometria', title: 'Geometría', category: 'Matemáticas', icon: Shapes, tone: 'coral', status: 'preparing' },
   { id: 'habilidad-matematica', title: 'Habilidad Matemática', category: 'Razonamiento', icon: Puzzle, tone: 'violet', status: 'preparing' },
   { id: 'aritmetica', title: 'Aritmética', category: 'Matemáticas', icon: Calculator, tone: 'amber', status: 'preparing' },
   { id: 'algebra', title: 'Álgebra', category: 'Matemáticas', icon: Sigma, tone: 'blue', status: 'preparing' },

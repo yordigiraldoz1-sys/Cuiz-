@@ -1,8 +1,7 @@
 import { ArrowRight, CalendarDays, Flame, GraduationCap, Sparkles, Target, Trophy } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
 import { useAuthStore } from '../../store/useAuthStore'
-import { getGeometryRecommendation, getGlobalCoursePerformance, getWeakTopicCount, type CourseProgressStatus, type LearningRecommendation } from '../../services/learningProgress'
+import { getGlobalCoursePerformance, type CourseProgressStatus } from '../../services/learningProgress'
 
 interface ActivityDay {
   id: number
@@ -81,9 +80,8 @@ function CareerCard() {
   )
 }
 
-function DailyMissionCard({ recommendation, weakCount }: { recommendation: LearningRecommendation; weakCount: number }) {
-  const tone = recommendation.kind === 'reinforce' ? 'bg-[#FFF0E8] text-[#C96D42]' : recommendation.kind === 'review' ? 'bg-[#EEF1FF] text-[#6879D9]' : 'bg-primary-50 text-primary-600'
-  return <section className="overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-primary-400 to-[#F04462] p-6 text-white shadow-[0_12px_28px_rgba(240,68,98,0.22)] sm:p-7 lg:col-span-2"><div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0"><div className="flex items-center gap-2 text-white/80"><Target size={17} /><p className="text-[11px] font-extrabold uppercase tracking-[0.16em]">Tu misión de hoy</p></div><div className="mt-3 flex items-center gap-3"><span className="rounded-xl bg-white/20 px-3 py-1.5 text-[10px] font-extrabold tracking-wide">{recommendation.label}</span><h2 className="truncate font-display text-2xl font-extrabold sm:text-3xl">{recommendation.title}</h2></div><p className="mt-2 max-w-xl text-sm font-semibold leading-relaxed text-white/85">{recommendation.description}</p>{weakCount > 0 && <p className="mt-3 text-xs font-extrabold text-white/90">{weakCount} {weakCount === 1 ? 'concepto necesita' : 'conceptos necesitan'} un repaso.</p>}</div><Link to={recommendation.href} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-extrabold text-primary-600 shadow-md transition hover:-translate-y-0.5">Empezar ahora <ArrowRight size={17} /></Link></div><div className="mt-5 flex items-center gap-2 text-xs font-bold text-white/75"><span className={`rounded-full px-2 py-1 ${tone}`}>Geometría</span><span>Una actividad breve y enfocada</span></div></section>
+function DailyMissionCard() {
+  return <section className="overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-primary-400 to-[#F04462] p-6 text-white shadow-[0_12px_28px_rgba(240,68,98,0.22)] sm:p-7 lg:col-span-2"><div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0"><div className="flex items-center gap-2 text-white/80"><Target size={17} /><p className="text-[11px] font-extrabold uppercase tracking-[0.16em]">Tu misión de hoy</p></div><div className="mt-3 flex items-center gap-3"><span className="rounded-xl bg-white/20 px-3 py-1.5 text-[10px] font-extrabold tracking-wide">EMPIEZA</span><h2 className="truncate font-display text-2xl font-extrabold sm:text-3xl">Elige una ruta para hoy</h2></div><p className="mt-2 max-w-xl text-sm font-semibold leading-relaxed text-white/85">Escoge un curso con ruta disponible y completa una práctica breve. Pronto tus misiones se adaptarán a tus respuestas.</p></div><Link to="/courses" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-extrabold text-primary-600 shadow-md transition hover:-translate-y-0.5">Ver mis cursos <ArrowRight size={17} /></Link></div><div className="mt-5 flex items-center gap-2 text-xs font-bold text-white/75"><span className="rounded-full bg-white/15 px-2 py-1">Preparación general</span><span>Elige la materia que quieres trabajar</span></div></section>
 }
 
 const globalStatus: Record<CourseProgressStatus, { label: string; className: string }> = {
@@ -94,18 +92,13 @@ const globalStatus: Record<CourseProgressStatus, { label: string; className: str
   solid: { label: 'Avance sólido', className: 'bg-correct/10 text-correct' },
 }
 
-function GlobalPerformanceCard({ lastSection }: { lastSection: string }) {
+function GlobalPerformanceCard() {
   const courses = getGlobalCoursePerformance()
-  return <section className="rounded-[1.75rem] border border-bark-100 bg-white p-6 shadow-card sm:p-7 lg:col-span-2"><div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-primary-500">Mapa global</p><h2 className="mt-1 font-display text-xl font-extrabold text-bark-800">Tu preparación completa</h2><p className="mt-1 text-sm font-semibold text-bark-500">Cada curso muestra su estado actual, sin inventar avances.</p></div><Link to={`/courses/geometria?section=${lastSection}`} className="rounded-xl border border-bark-100 px-3 py-2 text-xs font-extrabold text-bark-600">Continuar sección</Link></div><div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{courses.map(({ course, status }) => { const Icon = course.icon; const config = globalStatus[status]; const href = course.id === 'geometria' ? '/courses/geometria/performance' : `/courses/${course.id}`; return <Link key={course.id} to={href} className="flex min-w-0 items-center gap-2 rounded-xl bg-cream-50 px-3 py-2.5 transition hover:bg-primary-50"><Icon size={16} className="shrink-0 text-primary-500" /><span className="min-w-0 flex-1 truncate text-xs font-extrabold text-bark-700">{course.title}</span><span className={`shrink-0 rounded-full px-2 py-1 text-[9px] font-extrabold ${config.className}`}>{config.label}</span></Link> })}</div><Link to="/performance" className="mt-5 inline-flex items-center gap-2 text-xs font-extrabold text-primary-600">Ver mapa detallado <ArrowRight size={14} /></Link></section>
+  return <section className="rounded-[1.75rem] border border-bark-100 bg-white p-6 shadow-card sm:p-7 lg:col-span-2"><div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-primary-500">Mapa global</p><h2 className="mt-1 font-display text-xl font-extrabold text-bark-800">Tu preparación completa</h2><p className="mt-1 text-sm font-semibold text-bark-500">Cada curso muestra su estado actual, sin inventar avances.</p></div><Link to="/courses" className="rounded-xl border border-bark-100 px-3 py-2 text-xs font-extrabold text-bark-600">Explorar cursos</Link></div><div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{courses.map(({ course, status }) => { const Icon = course.icon; const config = globalStatus[status]; return <Link key={course.id} to={`/courses/${course.id}`} className="flex min-w-0 items-center gap-2 rounded-xl bg-cream-50 px-3 py-2.5 transition hover:bg-primary-50"><Icon size={16} className="shrink-0 text-primary-500" /><span className="min-w-0 flex-1 truncate text-xs font-extrabold text-bark-700">{course.title}</span><span className={`shrink-0 rounded-full px-2 py-1 text-[9px] font-extrabold ${config.className}`}>{config.label}</span></Link> })}</div><Link to="/performance" className="mt-5 inline-flex items-center gap-2 text-xs font-extrabold text-primary-600">Ver mapa detallado <ArrowRight size={14} /></Link></section>
 }
 
 export default function HomePage() {
   const { user } = useAuthStore()
-  const [recommendation, setRecommendation] = useState<LearningRecommendation>(() => getGeometryRecommendation())
-  const [weakCount, setWeakCount] = useState(() => getWeakTopicCount())
-  const [lastSection, setLastSection] = useState(() => localStorage.getItem('last-section-geometria') || 'section-segmentos-medida')
-
-  useEffect(() => { const refresh = () => { setRecommendation(getGeometryRecommendation()); setWeakCount(getWeakTopicCount()); setLastSection(localStorage.getItem('last-section-geometria') || 'section-segmentos-medida') }; window.addEventListener('focus', refresh); window.addEventListener('storage', refresh); return () => { window.removeEventListener('focus', refresh); window.removeEventListener('storage', refresh) } }, [])
 
   return (
     <div className="relative min-h-full overflow-hidden bg-cream-100 pb-28 lg:pb-12">
@@ -128,8 +121,8 @@ export default function HomePage() {
         </header>
 
         <div className="grid items-start gap-5 lg:grid-cols-[0.8fr_1.2fr]">
-          <DailyMissionCard recommendation={recommendation} weakCount={weakCount} />
-          <GlobalPerformanceCard lastSection={lastSection} />
+          <DailyMissionCard />
+          <GlobalPerformanceCard />
           <StreakCard current={user?.current_streak || 0} best={user?.longest_streak || 0} />
           <ActivityCard />
           <div className="lg:col-span-2"><CareerCard /></div>

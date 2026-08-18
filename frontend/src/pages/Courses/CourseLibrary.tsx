@@ -1,8 +1,6 @@
-import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, Sparkles } from 'lucide-react'
-import { GEOMETRIA_COURSE } from '../../data/geometriaCourse'
-import { COURSE_CATALOG, type CourseTone } from '../../data/courseCatalog'
+import { COURSE_CATALOG, type CourseCatalogItem, type CourseTone } from '../../data/courseCatalog'
 
 const toneStyles: Record<CourseTone, { cover: string; spine: string; icon: string; shadow: string }> = {
   coral: { cover: 'from-primary-300 to-primary-500', spine: 'bg-primary-600/55', icon: 'bg-white/20 text-white', shadow: 'shadow-[0_12px_0_#D63E59,0_18px_28px_rgba(214,62,89,0.22)]' },
@@ -12,29 +10,15 @@ const toneStyles: Record<CourseTone, { cover: string; spine: string; icon: strin
   violet: { cover: 'from-[#AD9BE7] to-[#8069C7]', spine: 'bg-[#6752AD]/60', icon: 'bg-white/20 text-white', shadow: 'shadow-[0_12px_0_#6A55B0,0_18px_28px_rgba(106,85,176,0.18)]' },
 }
 
-function readGeometryProgress() {
-  const lessons = GEOMETRIA_COURSE.flatMap((unit) => unit.nodes.flatMap((node) => node.lessons.map((lesson) => ({ nodeId: node.id, lessonId: lesson.id }))))
-  const completed = lessons.filter(({ nodeId, lessonId }) => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(`completed-lessons-${nodeId}`) || '[]')
-      return Array.isArray(saved) && saved.includes(lessonId)
-    } catch {
-      return false
-    }
-  }).length
-
-  return { completed, total: lessons.length }
-}
+const LIBRARY_BLOCKS: Array<{ title: string; description: string; courses: CourseCatalogItem[] }> = [
+  { title: 'Razonamiento', description: 'Herramientas para pensar, comprender y resolver.', courses: COURSE_CATALOG.filter((course) => course.id === 'habilidad-matematica' || course.id === 'habilidad-verbal') },
+  { title: 'Matemáticas', description: 'Rutas numéricas, algebraicas y espaciales.', courses: COURSE_CATALOG.filter((course) => course.category === 'Matemáticas') },
+  { title: 'Ciencias', description: 'Explica la vida, la materia y los fenómenos físicos.', courses: COURSE_CATALOG.filter((course) => course.category === 'Ciencias') },
+  { title: 'Letras y Sociales', description: 'Lenguaje, cultura, sociedad, territorio y ciudadanía.', courses: COURSE_CATALOG.filter((course) => ['Letras', 'Sociales', 'Humanidades'].includes(course.category)) },
+]
 
 export default function CourseLibrary() {
   const navigate = useNavigate()
-  const geometryProgress = useMemo(readGeometryProgress, [])
-  const progressPercent = geometryProgress.total > 0 ? Math.round((geometryProgress.completed / geometryProgress.total) * 100) : 0
-  const orderedCourses = useMemo(
-    () => [...COURSE_CATALOG].sort((a, b) => ({ available: 2, roadmap: 1, preparing: 0 }[b.status] - { available: 2, roadmap: 1, preparing: 0 }[a.status])),
-    [],
-  )
-
   return (
     <div className="relative min-h-full overflow-hidden bg-cream-100 pb-28 lg:pb-12">
       <div className="pointer-events-none absolute -left-24 top-32 h-80 w-80 rounded-full bg-primary-100/30 blur-3xl" />
@@ -66,15 +50,19 @@ export default function CourseLibrary() {
             <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-primary-500">Biblioteca de repaso</p>
             <h2 className="mt-1 font-display text-2xl font-extrabold text-bark-900">Elige un libro</h2>
           </div>
-          <span className="hidden text-xs font-bold text-bark-400 sm:block">Nuevos temarios se habilitarán progresivamente</span>
+          <span className="hidden text-xs font-bold text-bark-400 sm:block">Las rutas listas se distinguen dentro de cada bloque</span>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:grid-cols-5">
-          {orderedCourses.map((course) => {
+        <div className="space-y-11">
+          {LIBRARY_BLOCKS.map((block) => <section key={block.title} aria-labelledby={`block-${block.title}`}>
+            <div className="mb-5 flex items-end justify-between gap-4">
+              <div><p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-primary-500">{block.courses.length} cursos</p><h2 id={`block-${block.title}`} className="mt-1 font-display text-xl font-extrabold text-bark-800 sm:text-2xl">{block.title}</h2><p className="mt-1 text-sm font-semibold text-bark-400">{block.description}</p></div>
+            </div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:grid-cols-5">
+          {block.courses.map((course) => {
             const Icon = course.icon
             const tone = toneStyles[course.tone]
-            const isGeometry = course.id === 'geometria'
-            const isEconomy = course.id === 'economia'
+            const statusCopy = course.id === 'geometria' ? 'Reconstrucción' : course.status === 'roadmap' ? 'Ruta lista' : 'Próximamente'
 
             return (
               <button
@@ -92,14 +80,14 @@ export default function CourseLibrary() {
                     <span className="mt-4 text-[9px] font-extrabold uppercase tracking-[0.15em] text-white/70">{course.category}</span>
                     <span className="mt-1 font-display text-base font-extrabold leading-tight sm:text-lg">{course.title}</span>
                     <span className="mt-auto w-full border-t border-white/20 pt-3 text-[9px] font-extrabold uppercase tracking-[0.12em] text-white/75">
-                      {isGeometry ? `${geometryProgress.completed}/${geometryProgress.total} lecciones` : isEconomy ? '30 temas · ruta lista' : 'En preparación'}
+                      {statusCopy}
                     </span>
-                    {isGeometry && <span className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/20"><span className="block h-full rounded-full bg-white" style={{ width: `${Math.max(progressPercent, 3)}%` }} /></span>}
                   </div>
                 </div>
               </button>
             )
-          })}
+          })}</div>
+          </section>)}
         </div>
       </div>
     </div>

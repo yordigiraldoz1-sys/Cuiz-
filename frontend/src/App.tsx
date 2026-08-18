@@ -9,8 +9,6 @@ import Register from './pages/Auth/Register'
 import MainLayout from './components/layout/MainLayout'
 import Dashboard from './pages/Dashboard/Dashboard'
 import CourseLibrary from './pages/Courses/CourseLibrary'
-import GeometrySyllabus from './pages/Courses/GeometrySyllabus'
-import GeometryPerformance from './pages/Courses/GeometryPerformance'
 import HomePage from './pages/Home/HomePage'
 import ExerciseSession from './pages/Learning/ExerciseSession'
 import LessonPage from './pages/Learning/LessonPage'
@@ -62,8 +60,8 @@ export default function App() {
           <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
             <Route path="/" element={<HomePage />} />
             <Route path="/courses" element={<CourseLibrary />} />
-            <Route path="/courses/geometria/syllabus" element={<GeometrySyllabus />} />
-            <Route path="/courses/geometria/performance" element={<GeometryPerformance />} />
+            <Route path="/courses/geometria/syllabus" element={<Navigate to="/courses/geometria" replace />} />
+            <Route path="/courses/geometria/performance" element={<Navigate to="/courses/geometria" replace />} />
             <Route path="/courses/:courseId" element={<Dashboard />} />
             <Route path="/review" element={<SpacedRepetition />} />
             <Route path="/performance" element={<PerformancePage />} />

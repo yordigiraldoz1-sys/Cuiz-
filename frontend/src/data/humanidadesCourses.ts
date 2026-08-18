@@ -188,7 +188,7 @@ function buildLessons(topic: Topic): Lesson[] {
       tf(`${topic.id}-lesson-${lessonIndex + 1}-q5`, `${falseFact.term} se refiere a: ${at(0).definition}`, false, `La definición no corresponde a ${falseFact.term.toLowerCase()}.`, `${falseFact.term}: ${falseFact.definition}`),
       definition(6, at(4)), wordBank(7, at(0)),
       matching(`${topic.id}-lesson-${lessonIndex + 1}-q8`, 'Relaciona cada concepto con su idea central.', [[at(0).term, at(0).definition], [at(1).term, at(1).definition], [at(2).term, at(2).definition]], 'Cada término se distingue por su función y definición.', 'Relacionar definición y caso evita confusiones.'),
-      ordering(`${topic.id}-lesson-${lessonIndex + 1}-q9`, 'Ordena una estrategia para responder una pregunta de Humanidades.', ['Leer el enunciado y sus pistas', 'Identificar el concepto o autor central', 'Descartar opciones cercanas', 'Elegir y justificar la respuesta'], 'La precisión del término y del contexto permite elegir la alternativa adecuada.', 'Reconocer, comparar y justificar mejora la práctica.'),
+      ordering(`${topic.id}-lesson-${lessonIndex + 1}-q9`, `Ordena una estrategia para analizar ${topic.title.toLowerCase()}.`, ['Leer el enunciado y sus pistas', 'Identificar el concepto o dato central', 'Comparar alternativas cercanas', 'Elegir y justificar la respuesta'], 'La precisión del término y del contexto permite elegir la alternativa adecuada.', 'Reconocer, comparar y justificar mejora la práctica.'),
       caseQuestion(10, at(3)),
     ] }
   })

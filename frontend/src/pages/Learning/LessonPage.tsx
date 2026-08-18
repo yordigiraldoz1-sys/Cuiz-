@@ -1,10 +1,10 @@
 import { Component, type ReactNode, useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, CheckCircle, Star, X, Zap } from 'lucide-react'
 import { ECONOMIA_STAGE } from '../../data/economiaCourse'
 import { BIOLOGIA_STAGE } from '../../data/biologiaCourse'
 import { HUMANITIES_STAGES } from '../../data/humanidadesCourses'
-import { GEOMETRIA_COURSE, GEOMETRIA_STAGE, type AnswerChoice, type ExerciseQuestion } from '../../data/geometriaCourse'
+import type { AnswerChoice, ExerciseQuestion } from '../../data/geometriaCourse'
 import YordiGuide from '../../components/common/YordiGuide'
 import { recordLearningAttempt } from '../../services/learningProgress'
 
@@ -65,8 +65,8 @@ export default function LessonPage() {
   const biologyNode = BIOLOGIA_STAGE.sections.flatMap((unit) => unit.nodes).find((node) => node.id === nodeId)
   const humanitiesMatch = Object.entries(HUMANITIES_STAGES).map(([id, stage]) => ({ id, stage, node: stage.sections.flatMap((unit) => unit.nodes).find((item) => item.id === nodeId) })).find((item) => item.node)
   const humanitiesNode = humanitiesMatch?.node
-  const courseId = economyNode ? 'economia' : biologyNode ? 'biologia' : humanitiesMatch?.id || 'geometria'; const node = economyNode || biologyNode || humanitiesNode || GEOMETRIA_COURSE.flatMap((unit) => unit.nodes).find((item) => item.id === nodeId); const lesson = node?.lessons.find((item) => item.id === lessonId)
-  const sections = economyNode ? ECONOMIA_STAGE.sections : biologyNode ? BIOLOGIA_STAGE.sections : humanitiesMatch ? humanitiesMatch.stage.sections : GEOMETRIA_STAGE.sections; const sectionId = sections.find((section) => section.nodes.some((item) => item.id === nodeId))?.id || sections[0].id; const returnToCourse = `/courses/${courseId}?section=${sectionId}`
+  const courseId = economyNode ? 'economia' : biologyNode ? 'biologia' : humanitiesMatch?.id; const node = economyNode || biologyNode || humanitiesNode; const lesson = node?.lessons.find((item) => item.id === lessonId)
+  const sections = economyNode ? ECONOMIA_STAGE.sections : biologyNode ? BIOLOGIA_STAGE.sections : humanitiesMatch?.stage.sections || []; const sectionId = sections.find((section) => section.nodes.some((item) => item.id === nodeId))?.id || sections[0]?.id || ''; const returnToCourse = `/courses/${courseId || 'geometria'}${sectionId ? `?section=${sectionId}` : ''}`
   const repeated = useMemo(() => { try { return JSON.parse(localStorage.getItem('cuiz-learning-attempts') || '[]').some((attempt: { lessonId: string }) => attempt.lessonId === lessonId) } catch { return false } }, [lessonId])
   const steps = useMemo(() => lesson ? (repeated && courseId !== 'geometria' ? shuffle(lesson.exercises) : lesson.exercises) : [], [lesson, repeated, courseId])
   const [index, setIndex] = useState(0); const [answer, setAnswer] = useState<Answer>(null); const [answered, setAnswered] = useState(false); const [correct, setCorrect] = useState(false); const [xp, setXp] = useState(0); const [correctCount, setCorrectCount] = useState(0); const [done, setDone] = useState(false)
@@ -80,7 +80,7 @@ export default function LessonPage() {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [index, done])
-  if (!node || !lesson || !steps.length) return <div className="flex min-h-full items-center justify-center bg-cream-100 text-bark-500">Lección no encontrada</div>
+  if (!node || !lesson || !steps.length || !courseId) return <Navigate to="/courses/geometria" replace />
   const question = steps[index]; const progress = done ? 100 : Math.max(8, ((index + 1) / steps.length) * 100)
   const submit = () => { if (!isCorrectAnswer(question, answer) && answer === null) return; const result = isCorrectAnswer(question, answer); setCorrect(result); setAnswered(true); recordLearningAttempt({ courseId, nodeId: nodeId || '', lessonId: lessonId || '', questionId: question.id, correct: result }); if (result) { setXp((value) => value + 10); setCorrectCount((value) => value + 1) } }
   const next = () => { if (index < steps.length - 1) { setIndex(index + 1); setAnswer(null); setAnswered(false); setCorrect(false); return } const completed = JSON.parse(localStorage.getItem(`completed-lessons-${nodeId}`) || '[]'); if (!completed.includes(lessonId)) localStorage.setItem(`completed-lessons-${nodeId}`, JSON.stringify([...completed, lessonId])); setDone(true) }
