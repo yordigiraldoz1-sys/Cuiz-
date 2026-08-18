@@ -1,0 +1,18 @@
+import { ArrowLeft, ArrowRight, BarChart3, CheckCircle2, CircleDashed, DatabaseZap, Target } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { getGlobalCoursePerformance, type CourseProgressStatus } from '../../services/learningProgress'
+
+const statusCopy: Record<CourseProgressStatus, { label: string; className: string; icon: typeof Target }> = {
+  'no-data': { label: 'Sin datos', className: 'bg-bark-100 text-bark-500', icon: DatabaseZap },
+  'no-diagnosis': { label: 'Sin diagnóstico', className: 'bg-[#EEF1FF] text-[#657FD1]', icon: Target },
+  reinforce: { label: 'Por reforzar', className: 'bg-primary-50 text-primary-600', icon: Target },
+  'in-progress': { label: 'En práctica', className: 'bg-[#FFF1DD] text-[#C88924]', icon: CircleDashed },
+  solid: { label: 'Avance sólido', className: 'bg-correct/10 text-correct', icon: CheckCircle2 },
+}
+
+export default function PerformancePage() {
+  const courses = getGlobalCoursePerformance()
+  const categories = [...new Set(courses.map(({ course }) => course.category))]
+  const active = courses.filter(({ status }) => status !== 'no-data').length
+  return <main className="min-h-full bg-cream-100 px-4 py-7 sm:px-8"><div className="mx-auto max-w-6xl"><Link to="/" className="inline-flex items-center gap-2 text-sm font-extrabold text-bark-500 hover:text-primary-500"><ArrowLeft size={17} />Volver a Inicio</Link><header className="mt-7"><p className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.16em] text-primary-500"><BarChart3 size={15} />Mapa global</p><h1 className="mt-2 font-display text-3xl font-extrabold text-bark-900 sm:text-4xl">Tu preparación completa</h1><p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-bark-500">Un vistazo de todos tus cursos. Cuando un curso tenga práctica real, aquí aparecerá su estado.</p></header><section className="mt-7 rounded-[1.75rem] border border-primary-100 bg-white p-5 shadow-card"><p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-primary-500">Estado actual</p><p className="mt-1 text-sm font-semibold text-bark-600">{active ? `${active} curso${active === 1 ? '' : 's'} con actividad o contenido para diagnosticar.` : 'Aún no hay diagnósticos; empieza con Geometría para ver tu avance aquí.'}</p></section><div className="mt-7 space-y-7">{categories.map((category) => <section key={category}><h2 className="font-display text-xl font-extrabold text-bark-800">{category}</h2><div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{courses.filter(({ course }) => course.category === category).map(({ course, status }) => { const config = statusCopy[status]; const Icon = course.icon; const StatusIcon = config.icon; const href = course.id === 'geometria' ? '/courses/geometria/performance' : `/courses/${course.id}`; return <Link key={course.id} to={href} className="group rounded-2xl border border-bark-100 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-card"><div className="flex items-start gap-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cream-100 text-primary-500"><Icon size={19} /></span><div className="min-w-0 flex-1"><div className="flex items-center justify-between gap-2"><h3 className="truncate text-sm font-extrabold text-bark-800">{course.title}</h3><ArrowRight size={15} className="shrink-0 text-bark-300 transition group-hover:translate-x-1 group-hover:text-primary-500" /></div><span className={`mt-2 inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-extrabold ${config.className}`}><StatusIcon size={11} />{config.label}</span></div></div></Link> })}</div></section>)}</div></div></main>
+}

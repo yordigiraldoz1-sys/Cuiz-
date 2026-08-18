@@ -1,0 +1,143 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #FF5B70;
+  --color-accent: #FFB53D;
+  --color-cream: #FFF8F0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Nunito', 'Inter', system-ui, sans-serif;
+  background-color: #FFF8F0;
+  color: #3D2B1F;
+  min-height: 100vh;
+}
+
+button, a, input {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-400 hover:bg-primary-500 text-white font-bold py-3 px-6 rounded-2xl transition-all duration-200 shadow-md hover:shadow-lg active:translate-y-0.5 active:shadow-none;
+  }
+
+  .btn-coral {
+    @apply bg-coral-400 hover:bg-coral-500 text-white font-bold py-3 px-6 rounded-2xl transition-all duration-200 shadow-md hover:shadow-lg active:translate-y-0.5 active:shadow-none;
+  }
+
+  .btn-secondary {
+    @apply bg-white border-2 border-primary-400 text-primary-500 font-bold py-3 px-6 rounded-2xl transition-all duration-200 hover:bg-primary-50;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-bark-500 font-semibold py-3 px-6 rounded-2xl transition-all duration-200 hover:bg-bark-50;
+  }
+
+  .card {
+    @apply bg-white rounded-3xl border border-[#F3E6DE] shadow-card p-6 transition-all duration-200;
+  }
+
+  .card-hover {
+    @apply card hover:shadow-card-hover hover:-translate-y-1 cursor-pointer;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 border-2 border-bark-100 rounded-2xl focus:border-primary-400 focus:outline-none transition-colors duration-200 bg-white;
+  }
+
+  .progress-bar {
+    @apply h-3 bg-bark-100 rounded-full overflow-hidden;
+  }
+
+  .progress-fill {
+    @apply h-full bg-gradient-to-r from-primary-300 to-primary-400 transition-all duration-500 ease-out rounded-full;
+  }
+
+  .exercise-option {
+    @apply w-full p-4 border-2 border-bark-100 rounded-2xl text-left transition-all duration-200 hover:border-primary-300 hover:bg-primary-50 bg-white;
+  }
+
+  .exercise-option.selected {
+    @apply border-primary-400 bg-primary-50 ring-2 ring-primary-200;
+  }
+
+  .exercise-option.correct {
+    @apply border-correct bg-correct/10 text-correct;
+  }
+
+  .exercise-option.incorrect {
+    @apply border-incorrect bg-incorrect/10 text-incorrect;
+  }
+
+  .sidebar-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-bark-500 hover:bg-cream-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300;
+  }
+
+  .sidebar-item.active {
+    @apply bg-primary-400/10 text-primary-500 font-bold border-l-4 border-primary-400;
+  }
+
+  .skill-node {
+    @apply w-[70px] h-[70px] rounded-full flex items-center justify-center text-2xl transition-all duration-200 cursor-pointer border-4;
+  }
+
+  .skill-node-available {
+    @apply bg-white border-primary-400 shadow-skill-node hover:scale-105;
+  }
+
+  .skill-node-current {
+    @apply bg-primary-50 border-primary-400 shadow-skill-node-active animate-pulse-glow;
+  }
+
+  .skill-node-completed {
+    @apply bg-xp/10 border-xp shadow-skill-node;
+  }
+
+  .skill-node-locked {
+    @apply bg-bark-100 border-locked shadow-skill-node opacity-60 cursor-not-allowed;
+  }
+
+  .lesson-phase {
+    @apply flex items-center gap-3 p-4 rounded-2xl border-2 transition-all duration-200;
+  }
+
+  .lesson-phase-teoria {
+    @apply border-blue-200 bg-blue-50 hover:bg-blue-100;
+  }
+
+  .lesson-phase-practica {
+    @apply border-primary-200 bg-primary-50 hover:bg-primary-100;
+  }
+
+  .lesson-phase-libre {
+    @apply border-coral-200 bg-coral-50 hover:bg-coral-100;
+  }
+
+  .stat-card {
+    @apply bg-white rounded-2xl p-4 shadow-card text-center;
+  }
+
+  .mascot-tip {
+    @apply relative bg-white rounded-2xl p-4 shadow-card border-2 border-bark-100;
+  }
+
+  .mascot-tip::before {
+    content: '';
+    @apply absolute -bottom-2 left-8 w-4 h-4 bg-white border-b-2 border-r-2 border-bark-100 transform rotate-45;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
