@@ -19,7 +19,17 @@ const mc = (id: string, question: string, values: string[], answer: number, expl
 const tf = (id: string, question: string, answer: boolean, explanation: string, ideaKey: string): ExerciseQuestion => { const questionData = mc(id, question, ['Verdadero', 'Falso'], answer ? 0 : 1, explanation, ideaKey); return { ...questionData, type: 'true-false' } }
 const wb = (id: string, template: string, values: string[], answer: number, explanation: string, ideaKey: string, visual?: ExerciseQuestion['visual']): ExerciseQuestion => { const tokens = choices(id, values); return { id, type: 'word-bank', question: 'Completa la idea.', correctAnswer: tokens[answer].id, explanation, ideaKey, difficulty: 'basico', visual, wordBank: { template, blankId: 'respuesta', tokens, correctTokenId: tokens[answer].id }, resolutionSteps: [ideaKey, explanation] } }
 const matching = (id: string, question: string, pairs: [string, string][], explanation: string, ideaKey: string): ExerciseQuestion => ({ id, type: 'matching', question, correctAnswer: pairs.map((_, index) => `${id}-l${index}:${id}-r${index}`), explanation, ideaKey, difficulty: 'intermedio', matching: { pairs: pairs.map(([left, right], index) => ({ left: { id: `${id}-l${index}`, text: left }, right: { id: `${id}-r${index}`, text: right } })) } })
-const ordering = (id: string, question: string, values: string[], explanation: string, ideaKey: string): ExerciseQuestion => { const items = choices(id, values); return { id, type: 'ordering', question, correctAnswer: items.map((item) => item.id), explanation, ideaKey, difficulty: 'intermedio', ordering: { items, correctOrder: items.map((item) => item.id) } } }
+const ordering = (id: string, question: string, values: string[], explanation: string, ideaKey: string): ExerciseQuestion => {
+  const correct = values.join(' → ')
+  const alternatives = [
+    correct,
+    [values[1], values[0], ...values.slice(2)].join(' → '),
+    [...values].reverse().join(' → '),
+    [values[0], ...values.slice(2), values[1]].join(' → '),
+    [values[values.length - 1], ...values.slice(0, -1)].join(' → '),
+  ]
+  return mc(id, `Selecciona la secuencia correcta. ${question.replace(/^Ordena\s*/i, '')}`, alternatives, 0, explanation, ideaKey)
+}
 const fpp = (variant: 'basic' | 'growth' | 'contraction' | 'opportunity-cost', alt: string): ExerciseQuestion['visual'] => ({ kind: 'diagram', diagram: { type: 'fpp', variant }, alt })
 
 const firstTopicLessons: Lesson[] = [

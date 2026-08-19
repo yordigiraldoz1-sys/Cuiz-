@@ -3,18 +3,22 @@ import type { AnswerChoice, ExerciseQuestion, Lesson, SkillUnit } from './geomet
 export interface BiologyStage { id: string; title: string; subtitle: string; sections: SkillUnit[] }
 
 type Fact = { term: string; definition: string; application: string }
-type Blueprint = { id: string; lessons: [string, string, string, string]; facts: [Fact, Fact, Fact, Fact, Fact] }
+type Difficulty = ExerciseQuestion['difficulty']
+type Blueprint = { id: string; lessons: [string, string, string, string]; facts: Fact[] }
 
 const choices = (id: string, values: string[]): AnswerChoice[] => values.map((text, index) => ({ id: `${id}-c${index}`, text }))
-const mc = (id: string, question: string, values: string[], answer: number, explanation: string, ideaKey: string): ExerciseQuestion => ({ id, type: 'multiple-choice', question, choices: choices(id, values), correctAnswer: `${id}-c${answer}`, explanation, ideaKey, difficulty: 'basico', resolutionSteps: [ideaKey, explanation] })
-const tf = (id: string, question: string, answer: boolean, explanation: string, ideaKey: string): ExerciseQuestion => ({ ...mc(id, question, ['Verdadero', 'Falso'], answer ? 0 : 1, explanation, ideaKey), type: 'true-false' })
-const wb = (id: string, template: string, values: string[], answer: number, explanation: string, ideaKey: string): ExerciseQuestion => { const tokens = choices(id, values); return { id, type: 'word-bank', question: 'Completa la idea.', correctAnswer: tokens[answer].id, explanation, ideaKey, difficulty: 'basico', wordBank: { template, blankId: 'respuesta', tokens, correctTokenId: tokens[answer].id }, resolutionSteps: [ideaKey, explanation] } }
-const matching = (id: string, question: string, pairs: [string, string][], explanation: string, ideaKey: string): ExerciseQuestion => ({ id, type: 'matching', question, correctAnswer: pairs.map((_, index) => `${id}-l${index}:${id}-r${index}`), explanation, ideaKey, difficulty: 'intermedio', matching: { pairs: pairs.map(([left, right], index) => ({ left: { id: `${id}-l${index}`, text: left }, right: { id: `${id}-r${index}`, text: right } })) } })
-const ordering = (id: string, question: string, values: string[], explanation: string, ideaKey: string): ExerciseQuestion => { const items = choices(id, values); return { id, type: 'ordering', question, correctAnswer: items.map((item) => item.id), explanation, ideaKey, difficulty: 'intermedio', ordering: { items, correctOrder: items.map((item) => item.id) } } }
+const steps = (ideaKey: string, explanation: string) => ['Identifica la pista decisiva del enunciado.', `Relaciona esa pista con: ${ideaKey}`, explanation]
+const mc = (id: string, question: string, values: string[], answer: number, explanation: string, ideaKey: string, difficulty: Difficulty = 'basico'): ExerciseQuestion => ({ id, type: 'multiple-choice', question, choices: choices(id, values), correctAnswer: `${id}-c${answer}`, explanation, ideaKey, difficulty, resolutionSteps: steps(ideaKey, explanation) })
+const tf = (id: string, question: string, answer: boolean, explanation: string, ideaKey: string, difficulty: Difficulty = 'basico'): ExerciseQuestion => ({ ...mc(id, question, ['Verdadero', 'Falso'], answer ? 0 : 1, explanation, ideaKey, difficulty), type: 'true-false' })
+const wb = (id: string, template: string, values: string[], answer: number, explanation: string, ideaKey: string, difficulty: Difficulty = 'basico'): ExerciseQuestion => { const tokens = choices(id, values); return { id, type: 'word-bank', question: 'Completa la idea.', correctAnswer: tokens[answer].id, explanation, ideaKey, difficulty, wordBank: { template, blankId: 'respuesta', tokens, correctTokenId: tokens[answer].id }, resolutionSteps: steps(ideaKey, explanation) } }
+const matching = (id: string, question: string, pairs: [string, string][], explanation: string, ideaKey: string, difficulty: Difficulty = 'intermedio'): ExerciseQuestion => ({ id, type: 'matching', question, correctAnswer: pairs.map((_, index) => `${id}-l${index}:${id}-r${index}`), explanation, ideaKey, difficulty, resolutionSteps: steps(ideaKey, explanation), matching: { pairs: pairs.map(([left, right], index) => ({ left: { id: `${id}-l${index}`, text: left }, right: { id: `${id}-r${index}`, text: right } })) } })
 
 const BLUEPRINTS: Blueprint[] = [
   { id: 'bio-biologia', lessons: ['Biología: la ciencia de la vida', 'Seres vivos y organización', 'Bioelementos y agua', 'Reto de fundamentos'], facts: [
-    { term: 'Biología', definition: 'Ciencia que estudia a los seres vivos, sus procesos y relaciones.', application: 'Analizar cómo una población responde al ambiente.' },
+    { term: 'Biología', definition: 'Ciencia fáctica que estudia los seres vivos, su origen, evolución y propiedades.', application: 'Analizar cómo una población responde al ambiente.' },
+    { term: 'Método científico', definition: 'Conjunto de procedimientos que permite formular y contrastar explicaciones sobre un fenómeno.', application: 'Una hipótesis se contrasta con un experimento controlado.' },
+    { term: 'Ser vivo', definition: 'Materia altamente organizada capaz de realizar metabolismo, autorregularse y evolucionar.', application: 'Un organismo mantiene funciones internas mientras intercambia materia y energía.' },
+    { term: 'Organización biológica', definition: 'Jerarquía de niveles que va desde componentes químicos hasta niveles ecológicos.', application: 'Células forman tejidos, estos forman órganos y los organismos integran poblaciones.' },
     { term: 'Homeostasis', definition: 'Capacidad de mantener condiciones internas relativamente estables.', application: 'Regular la temperatura corporal ante el calor.' },
     { term: 'Bioelemento primario', definition: 'Elemento abundante que forma parte esencial de biomoléculas, como C, H, O y N.', application: 'El carbono integra glúcidos, lípidos y proteínas.' },
     { term: 'Agua', definition: 'Molécula polar que actúa como solvente y participa en reacciones biológicas.', application: 'Disolver sales y facilitar el transporte en la sangre.' },
@@ -154,19 +158,24 @@ function buildLessons(blueprint: Blueprint): Lesson[] {
   return blueprint.lessons.map((title, lessonIndex) => {
     const facts = blueprint.facts
     const at = (offset: number) => facts[(lessonIndex + offset) % facts.length]
-    const indexOf = (fact: Fact) => facts.indexOf(fact)
-    const definition = (position: number, fact: Fact) => mc(`${blueprint.id}-lesson-${lessonIndex + 1}-q${position}`, `¿Qué enunciado define mejor ${fact.term.toLowerCase()}?`, facts.map((item) => item.definition), indexOf(fact), fact.definition, `${fact.term}: ${fact.definition}`)
-    const caseQuestion = (position: number, fact: Fact) => mc(`${blueprint.id}-lesson-${lessonIndex + 1}-q${position}`, `¿Qué concepto se reconoce en este caso? ${fact.application}`, facts.map((item) => item.term), indexOf(fact), `El caso describe ${fact.term.toLowerCase()}.`, `${fact.term}: ${fact.definition}`)
-    const wordBank = (position: number, fact: Fact) => wb(`${blueprint.id}-lesson-${lessonIndex + 1}-q${position}`, `Completa: {{respuesta}} es ${fact.definition.toLowerCase()}`, facts.map((item) => item.term), indexOf(fact), `La definición corresponde a ${fact.term.toLowerCase()}.`, `${fact.term}: ${fact.definition}`)
+    const level: Difficulty = lessonIndex === 0 ? 'basico' : lessonIndex === 1 ? 'intermedio' : lessonIndex === 2 ? 'intermedio' : 'avanzado'
+    const optionsFor = (target: Fact, mapper: (fact: Fact) => string) => {
+      const pool = [target, ...facts.filter((fact) => fact !== target)].slice(0, 5)
+      return { values: pool.map(mapper), answer: pool.indexOf(target) }
+    }
+    const definition = (position: number, fact: Fact) => { const option = optionsFor(fact, (item) => item.definition); return mc(`${blueprint.id}-lesson-${lessonIndex + 1}-q${position}`, `¿Qué enunciado define mejor ${fact.term.toLowerCase()}?`, option.values, option.answer, `${fact.term} se reconoce por esta idea: ${fact.definition}`, `${fact.term}: ${fact.definition}`, level) }
+    const caseQuestion = (position: number, fact: Fact) => { const option = optionsFor(fact, (item) => item.term); return mc(`${blueprint.id}-lesson-${lessonIndex + 1}-q${position}`, `Lee el caso: ${fact.application} ¿Qué concepto permite explicarlo mejor?`, option.values, option.answer, `La pista decisiva es la función descrita. Corresponde a ${fact.term.toLowerCase()}: ${fact.definition}`, `${fact.term}: ${fact.definition}`, level) }
+    const wordBank = (position: number, fact: Fact) => { const option = optionsFor(fact, (item) => item.term); return wb(`${blueprint.id}-lesson-${lessonIndex + 1}-q${position}`, `Completa: {{respuesta}} es ${fact.definition.toLowerCase()}`, option.values, option.answer, `No basta memorizar el nombre: la definición y el caso describen ${fact.term.toLowerCase()}.`, `${fact.term}: ${fact.definition}`, level) }
+    const contrast = (position: number, primary: Fact, secondary: Fact) => mc(`${blueprint.id}-lesson-${lessonIndex + 1}-q${position}`, `¿Cuál diferencia correctamente ${primary.term.toLowerCase()} de ${secondary.term.toLowerCase()}?`, [`${primary.term} se relaciona con ${primary.definition.toLowerCase()}; ${secondary.term} se relaciona con ${secondary.definition.toLowerCase()}.`, `${primary.term} y ${secondary.term} son exactamente el mismo proceso.`, `${primary.term} ocurre solo fuera de los seres vivos y ${secondary.term} solo en plantas.`, `${primary.term} es una estructura y ${secondary.term} es siempre un órgano.` , `${primary.term} no tiene relación con la función o el contexto biológico.`], 0, `Ambos conceptos se separan por su función. ${primary.term}: ${primary.definition} ${secondary.term}: ${secondary.definition}`, `Compara función, lugar y resultado; no solo palabras parecidas.`, level)
     const trueFact = at(3); const falseFact = at(4)
-    return { id: `${blueprint.id}-lesson-${lessonIndex + 1}`, title, order: lessonIndex + 1, theory: `Practica ${title.toLowerCase()} con definiciones, casos y relaciones.`, exercises: [
+    const lessonIntro = lessonIndex === 0 ? 'Reconoce el concepto y su rasgo más importante.' : lessonIndex === 1 ? 'Diferencia conceptos cercanos usando su función.' : lessonIndex === 2 ? 'Aplica los conceptos a situaciones breves de biología.' : 'Integra pistas, descarta distractores y justifica tu decisión.'
+    return { id: `${blueprint.id}-lesson-${lessonIndex + 1}`, title, order: lessonIndex + 1, theory: lessonIntro, exercises: [
       definition(1, at(0)), caseQuestion(2, at(1)), wordBank(3, at(2)),
-      tf(`${blueprint.id}-lesson-${lessonIndex + 1}-q4`, `${trueFact.term} se refiere a: ${trueFact.definition}`, true, `La afirmación describe correctamente ${trueFact.term.toLowerCase()}.`, `${trueFact.term}: ${trueFact.definition}`),
-      tf(`${blueprint.id}-lesson-${lessonIndex + 1}-q5`, `${falseFact.term} se refiere a: ${at(0).definition}`, false, `La definición mostrada no corresponde a ${falseFact.term.toLowerCase()}.`, `${falseFact.term}: ${falseFact.definition}`),
-      definition(6, at(4)), wordBank(7, at(0)),
-      matching(`${blueprint.id}-lesson-${lessonIndex + 1}-q8`, 'Relaciona cada concepto con su idea central.', [[at(0).term, at(0).definition], [at(1).term, at(1).definition], [at(2).term, at(2).definition]], 'Cada concepto se reconoce por su función o rasgo distintivo.', 'Relacionar nombre, función y caso consolida el concepto.'),
-      ordering(`${blueprint.id}-lesson-${lessonIndex + 1}-q9`, 'Ordena una estrategia para resolver un caso de Biología.', ['Leer cuidadosamente el caso', 'Identificar la estructura o proceso clave', 'Descartar conceptos próximos', 'Elegir y justificar la respuesta'], 'Primero identifica las pistas del caso y luego contrasta los conceptos.', 'En Biología, la función y el contexto permiten distinguir conceptos similares.'),
-      caseQuestion(10, at(3)),
+      tf(`${blueprint.id}-lesson-${lessonIndex + 1}-q4`, `${trueFact.term} se refiere a: ${trueFact.definition}`, true, `La afirmación es correcta porque conserva la función propia de ${trueFact.term.toLowerCase()}.`, `${trueFact.term}: ${trueFact.definition}`, level),
+      tf(`${blueprint.id}-lesson-${lessonIndex + 1}-q5`, `${falseFact.term} se refiere a: ${at(0).definition}`, false, `La definición pertenece a ${at(0).term.toLowerCase()}, no a ${falseFact.term.toLowerCase()}.`, `${falseFact.term}: ${falseFact.definition}`, level),
+      contrast(6, at(0), at(1)), caseQuestion(7, at(4)),
+      matching(`${blueprint.id}-lesson-${lessonIndex + 1}-q8`, 'Relaciona cada concepto con su rasgo distintivo.', [[at(0).term, at(0).definition], [at(1).term, at(1).definition], [at(2).term, at(2).definition]], 'Cada relación se resuelve buscando función, estructura o proceso, no solo una palabra conocida.', 'Relacionar nombre, función y caso evita confundir conceptos cercanos.', level),
+      contrast(9, at(3), at(4)), caseQuestion(10, at(3)),
     ] }
   })
 }

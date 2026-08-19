@@ -10,7 +10,6 @@ const mc = (id: string, question: string, values: string[], answer: number, expl
 const tf = (id: string, question: string, answer: boolean, explanation: string, ideaKey: string): ExerciseQuestion => ({ ...mc(id, question, ['Verdadero', 'Falso'], answer ? 0 : 1, explanation, ideaKey), type: 'true-false' })
 const wb = (id: string, template: string, values: string[], answer: number, explanation: string, ideaKey: string): ExerciseQuestion => { const tokens = choices(id, values); return { id, type: 'word-bank', question: 'Completa la idea.', correctAnswer: tokens[answer].id, explanation, ideaKey, difficulty: 'basico', wordBank: { template, blankId: 'respuesta', tokens, correctTokenId: tokens[answer].id }, resolutionSteps: [ideaKey, explanation] } }
 const matching = (id: string, question: string, pairs: [string, string][], explanation: string, ideaKey: string): ExerciseQuestion => ({ id, type: 'matching', question, correctAnswer: pairs.map((_, index) => `${id}-l${index}:${id}-r${index}`), explanation, ideaKey, difficulty: 'intermedio', matching: { pairs: pairs.map(([left, right], index) => ({ left: { id: `${id}-l${index}`, text: left }, right: { id: `${id}-r${index}`, text: right } })) } })
-const ordering = (id: string, question: string, values: string[], explanation: string, ideaKey: string): ExerciseQuestion => { const items = choices(id, values); return { id, type: 'ordering', question, correctAnswer: items.map((item) => item.id), explanation, ideaKey, difficulty: 'intermedio', ordering: { items, correctOrder: items.map((item) => item.id) } } }
 const topic = (id: string, title: string, facts: [string, string, string][]): Topic => ({ id, title, facts: facts.map(([term, definition, application]) => ({ term, definition, application })) })
 
 const lenguajeUnits: Unit[] = [
@@ -188,7 +187,7 @@ function buildLessons(topic: Topic): Lesson[] {
       tf(`${topic.id}-lesson-${lessonIndex + 1}-q5`, `${falseFact.term} se refiere a: ${at(0).definition}`, false, `La definición no corresponde a ${falseFact.term.toLowerCase()}.`, `${falseFact.term}: ${falseFact.definition}`),
       definition(6, at(4)), wordBank(7, at(0)),
       matching(`${topic.id}-lesson-${lessonIndex + 1}-q8`, 'Relaciona cada concepto con su idea central.', [[at(0).term, at(0).definition], [at(1).term, at(1).definition], [at(2).term, at(2).definition]], 'Cada término se distingue por su función y definición.', 'Relacionar definición y caso evita confusiones.'),
-      ordering(`${topic.id}-lesson-${lessonIndex + 1}-q9`, `Ordena una estrategia para analizar ${topic.title.toLowerCase()}.`, ['Leer el enunciado y sus pistas', 'Identificar el concepto o dato central', 'Comparar alternativas cercanas', 'Elegir y justificar la respuesta'], 'La precisión del término y del contexto permite elegir la alternativa adecuada.', 'Reconocer, comparar y justificar mejora la práctica.'),
+      caseQuestion(9, at(2)),
       caseQuestion(10, at(3)),
     ] }
   })
